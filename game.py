@@ -5,67 +5,64 @@ import math
 # 初始化 Pygame
 pygame.init()
 
-# 設定顯示窗口大小
-SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
+# 設定視窗
+SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720  # 視窗大小
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Game")
+pygame.display.set_caption("Game")  # 視窗名稱
 
 # 設定顏色
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-HEALTH_COLOR = (255, 0, 0)  # 血量顏色
-LIGHT_YELLOW = (255, 239, 179)  # 米黃色背景顏色
+HEALTH_COLOR = (255, 0, 0)
+LIGHT_YELLOW = (255, 239, 179)
 
 # 設定血量
 MAX_HEALTH = 100  # 玩家最大血量
 current_health = MAX_HEALTH  # 當前血量
-invincible = False  # 玩家無敵狀態
-invincible_time = 0  # 無敵時間（以毫秒為單位）
+invincible = False  # 玩家受傷後無敵狀態
+invincible_time = 0  # 無敵時間
 
 # 設定玩家的參數
-PLAYER_SIZE = 50  # 假設玩家圖片大小為 50x50
-player_x, player_y = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2  # 玩家起始位置（螢幕中心）
+PLAYER_SIZE = 50  # 玩家圖片大小
+player_x, player_y = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2  # 玩家起始位置(螢幕中心)
 player_speed = 5  # 玩家移動速度
-player_rect = pygame.Rect(player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)  # 玩家矩形（用來碰撞檢測）
+player_rect = pygame.Rect(player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)  # 玩家矩形(碰撞檢測)
 
 # 設定子彈的參數
 BULLET_SIZE = 20  # 子彈圖片大小
 bullets = []  # 用來存儲所有子彈的列表
 
 # 設定敵人的參數
-ENEMY_SIZE = 50  # 設敵人圖片大小
+ENEMY_SIZE = 50  # 敵人圖片大小
 enemies = []  # 用來存儲所有敵人的列表
 
-# 設定敵人數量
-NUM_INITIAL_ENEMIES = 3  # 初始時生成 3 個敵人
-
-# 設定生成新敵人的時間間隔（毫秒）
-ENEMY_SPAWN_INTERVAL = 3000  # 每 3 秒生成一個新敵人
+# 設定敵人和子彈生成
+NUM_INITIAL_ENEMIES = 3  # 開始時生成3個敵人
+ENEMY_SPAWN_INTERVAL = 2000  # 每2秒生成一個新敵人
 last_enemy_spawn_time = pygame.time.get_ticks()  # 追蹤上次生成敵人的時間
 
-# 設定子彈射擊的時間延遲（毫秒）
-SHOOT_DELAY = 500  # 每 500 毫秒才能射擊一次
+SHOOT_DELAY = 500  # 每0.5秒才能射擊一次
 last_shoot_time = pygame.time.get_ticks()  # 追蹤上次射擊的時間
 
 # 載入圖片
 player_image = pygame.image.load("player.png")
-player_image = pygame.transform.scale(player_image, (PLAYER_SIZE, PLAYER_SIZE))  # 確保玩家圖片大小合適
+player_image = pygame.transform.scale(player_image, (PLAYER_SIZE, PLAYER_SIZE))
 
-player_invincible_image = pygame.image.load("invincible.png")  # 無敵狀態下顯示的圖片
+player_invincible_image = pygame.image.load("invincible.png")
 player_invincible_image = pygame.transform.scale(player_invincible_image, (PLAYER_SIZE, PLAYER_SIZE))
 
 enemy_image = pygame.image.load("enemy.png")
-enemy_image = pygame.transform.scale(enemy_image, (ENEMY_SIZE, ENEMY_SIZE))  # 確保敵人圖片大小合適
+enemy_image = pygame.transform.scale(enemy_image, (ENEMY_SIZE, ENEMY_SIZE))
 
 bullet_image = pygame.image.load("bullet.png")
-bullet_image = pygame.transform.scale(bullet_image, (BULLET_SIZE, BULLET_SIZE))  # 確保子彈圖片大小合適
+bullet_image = pygame.transform.scale(bullet_image, (BULLET_SIZE, BULLET_SIZE))
 
 
 # 發射子彈（朝滑鼠游標方向）
 def shoot_bullet():
     global last_shoot_time
     current_time = pygame.time.get_ticks()  # 獲取當前時間
-    if current_time - last_shoot_time >= SHOOT_DELAY:  # 檢查是否到達射擊間隔
+    if current_time - last_shoot_time >= SHOOT_DELAY:  # 檢查射擊間隔(0.5秒)
         mouse_x, mouse_y = pygame.mouse.get_pos()  # 獲取滑鼠位置
         dx = mouse_x - (player_x + PLAYER_SIZE // 2)  # 計算子彈相對玩家的位置
         dy = mouse_y - (player_y + PLAYER_SIZE // 2)
@@ -79,23 +76,23 @@ def shoot_bullet():
             'dx': dx,  # 存儲子彈的移動方向
             'dy': dy   # 存儲子彈的移動方向
         }
-        bullets.append(bullet)  # 將新子彈加入子彈列表
+        bullets.append(bullet)  # 將更新的子彈加入子彈列表
         last_shoot_time = current_time  # 更新上次射擊的時間
 
-# 移動子彈
+# 子彈移動
 def move_bullets():
     global bullets
-    for bullet in bullets[:]:  # 遍歷所有子彈
+    for bullet in bullets[:]:  # 所有子彈
         bullet['rect'].x += bullet['dx'] * 10  # 根據方向移動子彈
         bullet['rect'].y += bullet['dy'] * 10
 
-        # 如果子彈超出屏幕，移除它
+        # 子彈超出畫面時移除
         if bullet['rect'].x < 0 or bullet['rect'].x > SCREEN_WIDTH or bullet['rect'].y < 0 or bullet['rect'].y > SCREEN_HEIGHT:
             bullets.remove(bullet)
 
-# 創建敵人，讓敵人只生成在邊緣
+# 創建敵人
 def create_enemy():
-    edge = random.choice(["top", "bottom", "left", "right"])  # 隨機選擇敵人生成的邊緣位置
+    edge = random.choice(["top", "bottom", "left", "right"])  # 隨機選擇敵人生成的邊緣位置(上下左右)
     if edge == "top":
         enemy_x = random.randint(0, SCREEN_WIDTH - ENEMY_SIZE)
         enemy_y = 0
@@ -114,17 +111,17 @@ def create_enemy():
 # 檢查子彈與敵人的碰撞
 def check_bullet_collisions():
     global enemies, bullets
-    for bullet in bullets[:]:  # 遍歷所有子彈
-        for enemy in enemies[:]:  # 遍歷所有敵人
+    for bullet in bullets[:]:  # 所有子彈
+        for enemy in enemies[:]:  # 對所有敵人
             if bullet['rect'].colliderect(enemy):  # 如果子彈與敵人碰撞
                 enemies.remove(enemy)  # 移除敵人
                 bullets.remove(bullet)  # 移除子彈
-                break  # 停止檢查後續敵人
+                break
 
-# 計算敵人移動方向（朝玩家移動）
+# 敵人移動方向
 def move_enemies():
     global enemies, player_rect
-    for enemy in enemies:  # 遍歷所有敵人
+    for enemy in enemies:  # 所有敵人
         enemy_center = (enemy.x + ENEMY_SIZE // 2, enemy.y + ENEMY_SIZE // 2)  # 計算敵人中心點
         player_center = (player_x + PLAYER_SIZE // 2, player_y + PLAYER_SIZE // 2)  # 計算玩家中心點
         direction = (player_center[0] - enemy_center[0], player_center[1] - enemy_center[1])  # 計算方向向量
@@ -139,13 +136,13 @@ def check_player_collisions():
     global current_health, invincible, invincible_time
     if invincible:
         current_time = pygame.time.get_ticks()
-        if current_time - invincible_time > 1000:  # 無敵狀態持續 1 秒
+        if current_time - invincible_time > 1000:  # 扣血無敵狀態持續 1 秒
             invincible = False
 
     if not invincible:  # 如果不是無敵狀態
-        for enemy in enemies:  # 遍歷所有敵人
+        for enemy in enemies:  # 所有敵人
             if player_rect.colliderect(enemy):  # 如果玩家與敵人碰撞
-                current_health -= 10  # 扣除 10 點血量
+                current_health -= 10  # 扣10點血
                 invincible = True  # 進入無敵狀態
                 invincible_time = pygame.time.get_ticks()  # 記錄無敵時間
                 break  # 每次碰撞只扣一次血量
@@ -195,17 +192,20 @@ def draw_game():
 # 主遊戲循環
 def game_loop():
     global player_x, player_y, player_rect, bullets, last_enemy_spawn_time
+    # 生成敵人
     for _ in range(NUM_INITIAL_ENEMIES):
         create_enemy()
 
     clock = pygame.time.Clock()
+    # 遊戲運行
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                shoot_bullet()  # 當按下滑鼠左鍵時射擊
+                running = False  # 關閉遊戲
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            shoot_bullet()  # 當按下滑鼠左鍵時射擊
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:  # 玩家左移
@@ -234,7 +234,7 @@ def game_loop():
         if draw_game():  # 畫遊戲畫面並檢查是否結束
             break
 
-        clock.tick(30)  # 設定遊戲每秒幀數為 30
+        clock.tick(60)  # 設定遊戲每秒幀數為60
 
     pygame.quit()  # 結束 Pygame
 
