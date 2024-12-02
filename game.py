@@ -278,5 +278,42 @@ def game_loop():
 
     pygame.quit()  # 結束 Pygame
 
+
+
+# 顯示主畫面
+def show_start_screen():
+    # 使用支持中文的字型文件
+    font = pygame.font.Font("NotoSansTC-Black.ttf", 80)
+    title_text_chinese = font.render("按下空白鍵開始", True, BLACK)
+    title_text_english = font.render("Press Space to Start", True, BLACK)
+    screen.fill(LIGHT_YELLOW)
+    
+    # 顯示中文
+    screen.blit(
+        title_text_chinese, 
+        (SCREEN_WIDTH // 2 - title_text_chinese.get_width() // 2, SCREEN_HEIGHT // 2 - title_text_chinese.get_height() - 10)
+    )
+    
+    # 顯示英文
+    screen.blit(
+        title_text_english, 
+        (SCREEN_WIDTH // 2 - title_text_english.get_width() // 2, SCREEN_HEIGHT // 2 + 10)
+    )
+    
+    pygame.display.flip()
+    
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                waiting = False
+
+
+
+
 if __name__ == "__main__":
-    game_loop()  # 執行遊戲循環
+    show_start_screen()
+    game_loop()
