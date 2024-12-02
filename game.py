@@ -19,8 +19,8 @@ LIGHT_YELLOW = (255, 239, 179)
 # 設定血量
 MAX_HEALTH = 100  # 玩家最大血量
 current_health = MAX_HEALTH  # 當前血量
-invincible = False  # 玩家受傷後無敵狀態
-invincible_time = 0  # 無敵時間
+invincible = True  # 玩家受傷後無敵狀態
+invincible_time = 2  # 無敵時間
 
 # 設定玩家的參數
 PLAYER_SIZE = 70  # 玩家圖片大小
@@ -35,6 +35,12 @@ bullets = []  # 用來存儲所有子彈的列表
 # 設定敵人的參數
 ENEMY_SIZE = 50  # 敵人圖片大小
 enemies = []  # 用來存儲所有敵人的列表
+
+# 設定道具的參數
+POWERUP_SIZE = 30
+powerups = []
+POWERUP_SPAWN_INTERVAL = 5000
+last_powerup_spawn_time = pygame.time.get_ticks()
 
 # 設定敵人和子彈生成
 NUM_INITIAL_ENEMIES = 3  # 開始時生成3個敵人
@@ -60,10 +66,15 @@ enemy_image = pygame.transform.scale(enemy_image, (ENEMY_SIZE, ENEMY_SIZE))
 bullet_image = pygame.image.load("bullet.png")
 bullet_image = pygame.transform.scale(bullet_image, (BULLET_SIZE, BULLET_SIZE))
 
+# 載入音效
+shoot_sound = pygame.mixer.Sound("shoot.wav")
+hit_sound = pygame.mixer.Sound("hit.wav")
+damage_sound = pygame.mixer.Sound("damage.wav")
 
 # 發射子彈（朝滑鼠游標方向）
 def shoot_bullet():
     global last_shoot_time
+    
     current_time = pygame.time.get_ticks()  # 獲取當前時間
     if current_time - last_shoot_time >= SHOOT_DELAY:  # 檢查射擊間隔(0.5秒)
         mouse_x, mouse_y = pygame.mouse.get_pos()  # 獲取滑鼠位置
@@ -80,6 +91,7 @@ def shoot_bullet():
             'dy': dy   # 存儲子彈的移動方向
         }
         bullets.append(bullet)  # 將更新的子彈加入子彈列表
+        shoot_sound.play()
         last_shoot_time = current_time  # 更新上次射擊的時間
 
 # 子彈移動
@@ -117,10 +129,17 @@ def check_bullet_collisions():
     for bullet in bullets[:]:  # 所有子彈
         for enemy in enemies[:]:  # 對所有敵人
             if bullet['rect'].colliderect(enemy):  # 如果子彈與敵人碰撞
+                hit_sound.play()
                 enemies.remove(enemy)  # 移除敵人
                 bullets.remove(bullet)  # 移除子彈
                 score += 1  # 增加分數
                 break
+
+# 創建道具
+def create_powerup():
+    powerup_x = random.randint(0, SCREEN_WIDTH - POWERUP_SIZE)
+    powerup_y = random.randint(0, SCREEN_HEIGHT - POWERUP_SIZE)
+    powerups.append(pygame.Rect(powerup_x, powerup_y, POWERUP_SIZE, POWERUP_SIZE))
 
 # 敵人移動方向
 def move_enemies():
@@ -170,23 +189,8 @@ def draw_game():
     # 如果血量歸零，顯示 Game Over 並提供重啟提示
     if current_health <= 0:
         # 設定字體大小
-        game_over_font = pygame.font.Font(None, 80)  # 大字體
-        restart_font = pygame.font.Font(None, 40)  # 小字體
-
-        # 繪製 Game Over
-        game_over_text = game_over_font.render("Game Over", True, BLACK)
-        screen.blit(game_over_text, (
-            SCREEN_WIDTH // 2 - game_over_text.get_width() // 2,
-            SCREEN_HEIGHT // 2 - game_over_text.get_height()))
-
-        # 繪製提示文字
-        restart_text = restart_font.render("press space to restart the game", True, BLACK)
-        screen.blit(restart_text, (
-            SCREEN_WIDTH // 2 - restart_text.get_width() // 2,
-            SCREEN_HEIGHT // 2 + restart_text.get_height()))
-
-        pygame.display.flip()
-        return True  # 返回 True 表示遊戲結束
+        show_game_over_screen()
+        
 
     # 畫玩家
     if invincible:
@@ -227,6 +231,40 @@ def draw_game():
 
     pygame.display.flip()
     return False  # 返回 False 表示遊戲繼續進行
+
+# 顯示遊戲結束畫面
+def show_game_over_screen():
+    font = pygame.font.Font(None, 80)
+    title_text = font.render("Game Over", True, BLACK)
+    score_text = font.render(f"Score: {score}", True, BLACK)
+    restart_text = font.render("Press R to Restart or Q to Quit", True, BLACK)
+    screen.fill(WHITE)
+    screen.blit(
+        title_text, 
+        (SCREEN_WIDTH // 2 - title_text.get_width() // 2, SCREEN_HEIGHT // 4 - title_text.get_height() // 2)
+    )
+    screen.blit(
+        score_text, 
+        (SCREEN_WIDTH // 2 - score_text.get_width() // 2, SCREEN_HEIGHT // 2 - score_text.get_height() // 2)
+    )
+    screen.blit(
+        restart_text, 
+        (SCREEN_WIDTH // 2 - restart_text.get_width() // 2, SCREEN_HEIGHT * 3 // 4 - restart_text.get_height() // 2)
+    )
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    game_loop()
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    exit()
 
 # 主遊戲循環
 def game_loop():
