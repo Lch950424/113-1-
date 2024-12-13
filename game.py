@@ -1,9 +1,49 @@
 import pygame
 import random
+import os
 import math
+import pyautogui
+import time
+
+# 等待初始化（視需要調整時間）
+time.sleep(1)
+
+# 模擬切換輸入法快捷鍵（以 Windows 的 Alt + Shift 為例）
+pyautogui.hotkey('alt', 'shift')
+
+print("輸入法切換完成")
 
 # 初始化 Pygame
 pygame.init()
+
+# 載入音效
+shoot_sound = pygame.mixer.Sound("shoot.wav")
+hit_sound = pygame.mixer.Sound("hit.wav")
+damage_sound = pygame.mixer.Sound("damage.wav")
+
+# 設定 MP3 文件的資料夾
+mp3_folder = "music"
+
+# 獲取 MP3 文件列表
+mp3_files = [file for file in os.listdir(mp3_folder) if file.endswith(".mp3")]
+
+if mp3_files:
+    random_mp3 = random.choice(mp3_files)
+    random_mp3_path = os.path.join(mp3_folder, random_mp3)
+    pygame.mixer.music.load(random_mp3_path)
+    pygame.mixer.music.play(-1)  # 無限循環播放
+    print(f"正在播放: {random_mp3}")
+else:
+    print("資料夾中沒有 MP3 文件！")
+    
+# 設定音樂音量
+pygame.mixer.music.set_volume(0.7)  # 將音樂音量設為 50%
+
+# 設定音效音量
+shoot_sound.set_volume(0.3)        # 將射擊音效音量設為 30%
+hit_sound.set_volume(0.4)          # 將擊中音效音量設為 40%
+damage_sound.set_volume(0.6)       # 將受傷音效音量設為 60%
+
 
 # 設定視窗
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720  # 視窗大小
@@ -73,11 +113,6 @@ bullet_image = pygame.transform.scale(bullet_image, (BULLET_SIZE, BULLET_SIZE))
 #敵人子彈
 bullet2_image = pygame.image.load("bullet2.png")
 bullet2_image = pygame.transform.scale(bullet2_image, (BULLET_SIZE, BULLET_SIZE))
-
-# 載入音效
-shoot_sound = pygame.mixer.Sound("shoot.wav")
-hit_sound = pygame.mixer.Sound("hit.wav")
-damage_sound = pygame.mixer.Sound("damage.wav")
 
 # 發射子彈（朝滑鼠游標方向）
 def shoot_bullet():
