@@ -3,11 +3,11 @@
 此程式需使用pygame
 ```python
 #import pygame
-
+```
 ## #初始化pygame
 ```python
 pygame.init()
-
+```
 ## #載入音效
 在遊戲中加入音效
 ```python
@@ -15,3 +15,4 @@ pygame.init()
 shoot_sound = pygame.mixer.Sound("shoot.wav")
 hit_sound = pygame.mixer.Sound("hit.wav")
 damage_sound = pygame.mixer.Sound("damage.wav")
+```
