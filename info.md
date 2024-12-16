@@ -1,3 +1,4 @@
+### 程式碼簡介
 ## #import
 在python一開始先宣告函式庫
 此程式需使用pygame
