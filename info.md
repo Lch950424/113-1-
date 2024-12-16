@@ -2,7 +2,7 @@
 在python一開始先宣告函式庫
 此程式需使用pygame
 ```python
-#import pygame
+import pygame
 ```
 ## #初始化pygame
 ```python
