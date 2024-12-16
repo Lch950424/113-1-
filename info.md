@@ -1,4 +1,6 @@
-### 程式碼簡介
+# 程式碼簡介
+若需查看操作說明請看README.md
+[README.md](https://github.com/Lch950424/113-1-/blob/main/README.md)
 ## #import
 在python一開始先宣告函式庫
 此程式需使用pygame
