@@ -19,6 +19,11 @@
 
 > 2024/12/13 敵人數量變多、新增閃避敵人子彈、背景音樂加入、.zip資料包下載、把方向鍵移動改成WASD控制
 
+### **參考資料:**
+[ChatGPT-遊戲功能擴展建議](https://chatgpt.com/share/675b7e81-d388-800e-8675-98359beadb1c)
+[ChatGPT-遊戲開始畫面設置](https://chatgpt.com/share/675b818a-9a30-8013-b3dc-c7c57438651b)
+[ChatGPT-隨機撥放.MP3音樂](https://chatgpt.com/share/67606a46-409c-8013-bb36-9eac04e91af6)
+
 
 ### **程式碼簡介:**
 [info.md](https://github.com/Lch950424/113-1-/blob/main/info.md)
