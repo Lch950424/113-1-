@@ -3,9 +3,23 @@
 此程式需使用pygame
 ```python
 import pygame
+import random
+import os
+import math
+import time
 ```
+## #模擬切換輸入法
+此程式執行時須使用英文輸入法，但pygame視窗開啟後會自動切成中文輸入法，因此加入此段程式使程式能自動變換輸入法。
+```python
+# 模擬切換輸入法快捷鍵（以 Windows 的 Alt + Shift 為例）
+pyautogui.hotkey('alt', 'shift')
+
+print("輸入法切換完成")
+```
+> 輸入法切換完成
 ## #初始化pygame
 ```python
+time.sleep(1) #等候初始化
 pygame.init()
 ```
 ## #載入音效
