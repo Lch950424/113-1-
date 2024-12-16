@@ -1,10 +1,12 @@
 ## #import
 在python一開始先宣告函式庫
 此程式需使用pygame
-因此先 > #import pygame
+```python
+#import pygame
 
 ## #初始化pygame
-> pygame.init()
+```python
+pygame.init()
 
 ## #載入音效
 在遊戲中加入音效
