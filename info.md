@@ -1,5 +1,5 @@
 # 程式碼簡介
-若需查看操作說明請看README.md
+若需查看操作說明請查看
 [README.md](https://github.com/Lch950424/113-1-/blob/main/README.md)
 ## #import
 在python一開始先宣告函式庫
