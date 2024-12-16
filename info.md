@@ -16,3 +16,24 @@ shoot_sound = pygame.mixer.Sound("shoot.wav")
 hit_sound = pygame.mixer.Sound("hit.wav")
 damage_sound = pygame.mixer.Sound("damage.wav")
 ```
+## #加入背景音樂
+在遊戲中播放背景音樂
+```python
+#設定MP3文件的資料夾
+mp3_folder = "music"
+#獲取MP3文件列表
+mp3_files = [file for file in os.listdir(mp3_folder) if file.endswitch(".mp3")]
+
+if mp3_files:
+    random_mp3 = random.choice(mp3_files)
+    random_mp3_path = os.path.join(mp3_folder, random_mp3)
+    pygame.mixer.music.load(random_mp3_path)
+    pygame.mixer.music.play(-1) #無限循環播放
+    print(f"正在播放: {random_mp3}")
+else:
+    print("資料夾中沒有 MP3 文件!")
+```
+## #設定音樂、音效音量
+```python
+#設定音樂音量
+pygame.mixer.music.set_volume(0.7)
