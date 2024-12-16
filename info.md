@@ -35,5 +35,11 @@ else:
 ```
 ## #設定音樂、音效音量
 ```python
-#設定音樂音量
-pygame.mixer.music.set_volume(0.7)
+# 設定音樂音量
+pygame.mixer.music.set_volume(0.7)  # 將音樂音量設為 50%
+
+# 設定音效音量
+shoot_sound.set_volume(0.3)        # 將射擊音效音量設為 30%
+hit_sound.set_volume(0.4)          # 將擊中音效音量設為 40%
+damage_sound.set_volume(0.6)       # 將受傷音效音量設為 60%
+```
