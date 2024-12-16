@@ -33,7 +33,7 @@ if mp3_files:
 else:
     print("資料夾中沒有 MP3 文件!")
 ```
-![播放音樂](https://fengchia-my.sharepoint.com/:i:/g/personal/d1353491_o365_fcu_edu_tw/EeVvYsow2dpKtsGpOBv3AmABWeio8eU-A2JFblfoOXyQ3Q?e=1hQ1es)
+![播放音樂]([https://fengchia-my.sharepoint.com/:i:/g/personal/d1353491_o365_fcu_edu_tw/EeVvYsow2dpKtsGpOBv3AmABWeio8eU-A2JFblfoOXyQ3Q?e=1hQ1es](https://fengchia-my.sharepoint.com/:f:/g/personal/d1353491_o365_fcu_edu_tw/Eu-L6yCkh8ZNs_eoAU6j-0kBq7sojxx-6RDkB4fBw04bxg?e=wXBx7d))
 ## #設定音樂、音效音量
 ```python
 # 設定音樂音量
