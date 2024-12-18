@@ -62,6 +62,7 @@ hit_sound.set_volume(0.4)          # 將擊中音效音量設為 40%
 damage_sound.set_volume(0.6)       # 將受傷音效音量設為 60%
 ```
 ## #遊戲參數設定
+設定遊戲中需要的圖片大小、血量、生成方式等
 ```python
 # 設定視窗
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720  # 視窗大小1280*720
@@ -281,13 +282,15 @@ def check_player_collisions():
                 invincible = True  # 進入無敵狀態
                 invincible_time = pygame.time.get_ticks()  # 重置無敵時間
                 break  # 停止檢查，確保只扣一次血
+```
 
-
-
+## #遊戲畫面
+```python
+# 玩家死亡後重設遊戲
 def reset_game():
     global current_health, player_x, player_y, player_rect, bullets, enemies, score, start_time, game_over, base_enemy_count
-    current_health = MAX_HEALTH
-    player_x, player_y = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+    current_health = MAX_HEALTH  # 血量回滿
+    player_x, player_y = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2  # 玩家位置置中
     player_rect = pygame.Rect(player_x, player_y, PLAYER_SIZE, PLAYER_SIZE)
     bullets = []
     enemies = []
@@ -297,9 +300,8 @@ def reset_game():
     base_enemy_count = 1  # 重置敵人生成數量基數
     for _ in range(NUM_INITIAL_ENEMIES):  # 重設初始敵人數量
         create_enemy()
-```
-## #遊戲畫面
-```python
+
+
 # 顯示遊戲畫面
 def draw_game():
     screen.fill(LIGHT_YELLOW)  # 設定背景顏色
@@ -344,7 +346,7 @@ def draw_game():
     pygame.display.flip()
 
 
-# 顯示遊戲結束畫面
+# 顯示遊戲結束的畫面
 def show_game_over_screen():
     font = pygame.font.Font(None, 80)
     title_text = font.render("Game Over", True, BLACK)
@@ -365,6 +367,7 @@ def show_game_over_screen():
     )
     pygame.display.flip()
 
+# 畫面停止，等待玩家
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -385,6 +388,7 @@ def game_loop():
     global player_x, player_y, player_rect, bullets, last_enemy_spawn_time, ENEMY_SPAWN_INTERVAL, base_enemy_count, last_increment_time, game_over
     reset_game()
 
+    # 計算時間
     clock = pygame.time.Clock()
     running = True
     while running:
@@ -393,12 +397,14 @@ def game_loop():
                 running = False
 
         keys = pygame.key.get_pressed()
-        
+
+        # 當血量歸零
         if current_health <= 0:
             show_game_over_screen()  # 顯示遊戲結束畫面
             reset_game()  # 重置遊戲
             continue  # 繼續遊戲循環，避免執行後續邏輯
 
+        # 玩家血量不為零時
         if current_health > 0:
             # 玩家移動
             if keys[pygame.K_a]:
@@ -437,8 +443,10 @@ def game_loop():
         clock.tick(60)
 
     pygame.quit()
+```
 
-# 顯示主畫面
+## #畫面的文字處理
+```python
 def show_start_screen():
     # 使用支持中文的字型文件
     font = pygame.font.Font("NotoSansTC-Black.ttf", 80)
@@ -469,9 +477,9 @@ def show_start_screen():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 waiting = False
 ```
-## #if __name__ == "__main__":
-當__name__ 的值是 "__main__"時，執行 show_start_screen()、game_loop()
+## #啟動主程式運行
 ```python
+# 當__name__ 的值是 "__main__"時，執行 show_start_screen()、game_loop()
 if __name__ == "__main__":
     show_start_screen()
     game_loop()
