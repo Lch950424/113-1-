@@ -293,6 +293,7 @@ def check_player_collisions():
             if bullet.get('type') == 'enemy2' and bullet['rect'].colliderect(player_rect):  # 檢查敵人子彈
                 current_health -= 10  # 扣血
                 bullets.remove(bullet)  # 移除碰撞的子彈
+                damage_sound.play()
                 invincible = True  # 進入無敵狀態
                 invincible_time = pygame.time.get_ticks()  # 重置無敵時間
                 break  # 只扣一次血
