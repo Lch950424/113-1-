@@ -115,41 +115,55 @@ bullet2_image = pygame.image.load("bullet2.png")
 bullet2_image = pygame.transform.scale(bullet2_image, (BULLET_SIZE, BULLET_SIZE))
 
 # 發射子彈（朝滑鼠游標方向）
+def shoot_enemy_bullet(enemy_rect):
+    bullet_rect = pygame.Rect(enemy_rect.centerx - 5, enemy_rect.bottom, 10, 20)
+    bullet = {'rect': bullet_rect, 'type': 'enemy2'}  # Enemy bullet type is 'enemy2'
+    bullets.append(bullet)
+
+
 def shoot_bullet():
     global last_shoot_time
     
-    current_time = pygame.time.get_ticks()  # 獲取當前時間
-    if current_time - last_shoot_time >= SHOOT_DELAY:  # 檢查射擊間隔(0.4秒)
-        mouse_x, mouse_y = pygame.mouse.get_pos()  # 獲取滑鼠位置
-        dx = mouse_x - (player_x + PLAYER_SIZE // 2)  # 計算子彈相對玩家的位置
+    if invincible:  # Prevent shooting if the player is invincible
+        return
+
+    current_time = pygame.time.get_ticks()  # Get current time
+    if current_time - last_shoot_time >= SHOOT_DELAY:  # Check shooting interval (0.4 seconds)
+        mouse_x, mouse_y = pygame.mouse.get_pos()  # Get mouse position
+        dx = mouse_x - (player_x + PLAYER_SIZE // 2)  # Calculate relative position to player
         dy = mouse_y - (player_y + PLAYER_SIZE // 2)
-        distance = math.sqrt(dx ** 2 + dy ** 2)  # 計算距離
-        dx /= distance  # 歸一化方向向量
+        distance = math.sqrt(dx ** 2 + dy ** 2)  # Calculate distance
+        dx /= distance  # Normalize direction vector
         dy /= distance
 
+        # Create player's bullet (bullet1)
         bullet = {
             'rect': pygame.Rect(player_x + PLAYER_SIZE // 2 - BULLET_SIZE // 2,
                                 player_y + PLAYER_SIZE // 2 - BULLET_SIZE // 2, BULLET_SIZE, BULLET_SIZE),
-            'dx': dx,  # 存儲子彈的移動方向
-            'dy': dy   # 存儲子彈的移動方向
+            'dx': dx,  # Direction of the bullet
+            'dy': dy   # Direction of the bullet
         }
-        bullets.append(bullet)  # 將更新的子彈加入子彈列表
+        bullets.append(bullet)  # Add the bullet to the list
         shoot_sound.play()
-        last_shoot_time = current_time  # 更新上次射擊的時間
+        last_shoot_time = current_time  # Update last shoot time
+
+
 
 # 子彈移動
+# Bullet movement function
 def move_bullets():
     global bullets
     for bullet in bullets[:]:
-        if bullet.get('type') == 'enemy2':  # enemy2 子彈
-            speed_multiplier = 0.7  # enemy2 子彈速度
+        if bullet.get('type') == 'enemy2':  # Check if it's an enemy2 bullet
+            speed_multiplier = 0.7  # Slower speed for enemy2 bullets
         else:
-            speed_multiplier = 1
+            speed_multiplier = 1  # Normal speed for player bullets
 
+        # Move the bullet based on its direction
         bullet['rect'].x += bullet['dx'] * 10 * speed_multiplier
         bullet['rect'].y += bullet['dy'] * 10 * speed_multiplier
 
-        # 子彈超出畫面時移除
+        # Remove bullets that are off-screen
         if bullet in bullets and (
             bullet['rect'].x < 0 or 
             bullet['rect'].x > SCREEN_WIDTH or 
@@ -159,17 +173,18 @@ def move_bullets():
             bullets.remove(bullet)
 
 
+
 # 設定敵人參數
 class Enemy:
     def __init__(self, x, y, image, is_shooter=False):
         self.rect = pygame.Rect(x, y, ENEMY_SIZE, ENEMY_SIZE)
         self.image = image
-        self.is_shooter = is_shooter  # 是否為射擊型敵人
-        self.last_shoot_time = 0  # 上次射擊時間
+        self.is_shooter = is_shooter  # Whether the enemy is a shooter
+        self.last_shoot_time = 0  # Last shooting time
 
     def shoot(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_shoot_time >= SHOOT_DELAY * 3.5:  # 增加射擊間隔
+        if current_time - self.last_shoot_time >= SHOOT_DELAY * 3.5:  # Shooting interval
             dx = player_rect.centerx - self.rect.centerx
             dy = player_rect.centery - self.rect.centery
             distance = math.sqrt(dx ** 2 + dy ** 2)
@@ -180,12 +195,13 @@ class Enemy:
                 'rect': pygame.Rect(self.rect.centerx - BULLET_SIZE // 2,
                                     self.rect.centery - BULLET_SIZE // 2,
                                     BULLET_SIZE, BULLET_SIZE),
-                'dx': dx * 0.5,  # 增加子彈飛行速度
+                'dx': dx * 0.5,  # Reduced speed for enemy bullet
                 'dy': dy * 0.5,
-                'type': 'enemy2'  # 標記為 enemy2 的子彈
+                'type': 'enemy2'  # Marked as enemy2 bullet
             }
             bullets.append(bullet)
-            self.last_shoot_time = current_time
+            self.last_shoot_time = current_time  # Update last shoot time
+
 
 
 # 創建敵人
@@ -270,26 +286,31 @@ def check_player_collisions():
     global current_health, invincible, invincible_time
     if invincible:
         current_time = pygame.time.get_ticks()
-        if current_time - invincible_time > 1000:  # 無敵狀態持續 1 秒
+        if current_time - invincible_time > 1000:  # 1秒後無敵時間結束
             invincible = False
 
     if not invincible:
+        # 玩家與敵人碰撞檢查
         for enemy in enemies:
             if player_rect.colliderect(enemy.rect):  # 玩家與敵人碰撞
                 current_health -= 10
                 invincible = True
                 invincible_time = pygame.time.get_ticks()  # 重置無敵時間
-                break  # 停止檢查，確保只扣一次血
+                break  # 只扣一次血
 
-        for bullet in bullets[:]:  # 檢查子彈與玩家的碰撞
-            if bullet['rect'].colliderect(player_rect) and bullet.get('type') == 'enemy2':
-                current_health -= 10  # 扣血量
-                bullets.remove(bullet)  # 只移除與玩家碰撞的子彈
+        # 玩家與敵人子彈碰撞檢查
+        for bullet in bullets[:]:  # 遍歷所有子彈
+            if bullet.get('type') == 'enemy2' and bullet['rect'].colliderect(player_rect):  # 檢查敵人子彈
+                current_health -= 10  # 扣血
+                bullets.remove(bullet)  # 移除碰撞的子彈
                 invincible = True  # 進入無敵狀態
                 invincible_time = pygame.time.get_ticks()  # 重置無敵時間
-                break  # 停止檢查，確保只扣一次血
+                break  # 只扣一次血
 
-
+        # 避免玩家與自己的子彈發生碰撞
+        for bullet in bullets[:]:
+            if bullet['rect'].colliderect(player_rect) and bullet.get('type') == 'player':  # 排除玩家自己的子彈
+                continue  # 跳過與玩家自己的子彈碰撞的檢查
 
 def reset_game():
     global current_health, player_x, player_y, player_rect, bullets, enemies, score, start_time, game_over, base_enemy_count
@@ -309,19 +330,19 @@ def reset_game():
 
 # 顯示遊戲畫面
 def draw_game():
-    screen.fill(LIGHT_YELLOW)  # 設定背景顏色
+    screen.fill(LIGHT_YELLOW)  # Set background color
 
-    # 畫玩家
+    # Draw player
     if invincible:
-        screen.blit(player_invincible_image, player_rect.topleft)  # 無敵時顯示無敵圖片
+        screen.blit(player_invincible_image, player_rect.topleft)  # Show invincible image when in invincible state
     else:
-        screen.blit(player_image, player_rect.topleft)  # 正常情況顯示玩家圖片
+        screen.blit(player_image, player_rect.topleft)  # Show regular player image
 
-    # 畫敵人
+    # Draw enemies
     for enemy in enemies:
-        screen.blit(enemy.image, enemy.rect.topleft)  # 根據敵人的種類顯示不同的圖片
+        screen.blit(enemy.image, enemy.rect.topleft)  # Draw enemies based on their type
 
-    # 顯示血量
+    # Display health bar
     health_bar_width = 200
     health_bar_height = 20
     health_bar_x = 10
@@ -333,23 +354,26 @@ def draw_game():
     health_text = font.render(f"HP: {current_health}", True, BLACK)
     screen.blit(health_text, (health_bar_x + health_bar_width + 10, health_bar_y))
 
-    # 顯示分數
+    # Display score
     score_text = font.render(f"Score: {score}", True, BLACK)
     screen.blit(score_text, (health_bar_x, health_bar_y + health_bar_height + 10))
 
-    # 顯示計時器
+    # Display timer
     elapsed_time = (pygame.time.get_ticks() - start_time) // 1000
     minutes = elapsed_time // 60
     seconds = elapsed_time % 60
     timer_text = font.render(f"Time: {minutes:02}:{seconds:02}", True, BLACK)
     screen.blit(timer_text, (SCREEN_WIDTH - timer_text.get_width() - 10, 10))
 
-    # 繪製子彈
+    # Draw bullets
     for bullet in bullets:
-        screen.blit(bullet_image, bullet['rect'].topleft)
-        screen.blit(bullet2_image, bullet['rect2'].topleft)
+        if bullet.get('type') == 'enemy2':  # Check if the bullet is of type 'enemy2'
+            screen.blit(bullet2_image, bullet['rect'].topleft)  # Draw enemy2 bullet
+        else:
+            screen.blit(bullet_image, bullet['rect'].topleft)  # Draw regular player bullet
 
     pygame.display.flip()
+
 
 
 # 顯示遊戲結束畫面
