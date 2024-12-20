@@ -10,7 +10,6 @@ time.sleep(1)
 
 # 模擬切換輸入法快捷鍵（以 Windows 的 Alt + Shift 為例）
 pyautogui.hotkey('alt', 'shift')
-
 print("輸入法切換完成")
 
 # 初始化 Pygame
@@ -21,12 +20,16 @@ shoot_sound = pygame.mixer.Sound("shoot.wav")
 hit_sound = pygame.mixer.Sound("hit.wav")
 damage_sound = pygame.mixer.Sound("damage.wav")
 
+# 設定音效音量
+shoot_sound.set_volume(0.3)    # 將射擊音效音量設為 30%
+hit_sound.set_volume(0.4)      # 將擊中音效音量設為 40%
+damage_sound.set_volume(0.6)   # 將受傷音效音量設為 60%
+
 # 設定 MP3 文件的資料夾
 mp3_folder = "music"
 
 # 獲取 MP3 文件列表
 mp3_files = [file for file in os.listdir(mp3_folder) if file.endswith(".mp3")]
-
 if mp3_files:
     random_mp3 = random.choice(mp3_files)
     random_mp3_path = os.path.join(mp3_folder, random_mp3)
@@ -35,15 +38,9 @@ if mp3_files:
     print(f"正在播放: {random_mp3}")
 else:
     print("資料夾中沒有 MP3 文件！")
-    
+
 # 設定音樂音量
-pygame.mixer.music.set_volume(0.7)  # 將音樂音量設為 50%
-
-# 設定音效音量
-shoot_sound.set_volume(0.3)        # 將射擊音效音量設為 30%
-hit_sound.set_volume(0.4)          # 將擊中音效音量設為 40%
-damage_sound.set_volume(0.6)       # 將受傷音效音量設為 60%
-
+pygame.mixer.music.set_volume(0.7)  # 將音樂音量設為 70%
 
 # 設定視窗
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720  # 視窗大小
@@ -95,96 +92,87 @@ start_time = pygame.time.get_ticks()  # 紀錄遊戲開始時間
 
 
 # 載入圖片
-#玩家
+# 玩家
 player_image = pygame.image.load("player.png")
 player_image = pygame.transform.scale(player_image, (PLAYER_SIZE, PLAYER_SIZE))
-#玩家(無敵時)
+# 玩家(無敵時)
 player_invincible_image = pygame.image.load("invincible.png")
 player_invincible_image = pygame.transform.scale(player_invincible_image, (PLAYER_SIZE, PLAYER_SIZE))
-#近距離敵人
+# 近距離敵人
 enemy_image = pygame.image.load("enemy.png")
 enemy_image = pygame.transform.scale(enemy_image, (ENEMY_SIZE, ENEMY_SIZE))
-#遠距離敵人
+# 遠距離敵人
 enemy2_image = pygame.image.load("enemy2.png")
 enemy2_image = pygame.transform.scale(enemy2_image, (ENEMY_SIZE, ENEMY_SIZE))
-#玩家子彈
+# 玩家子彈
 bullet_image = pygame.image.load("bullet.png")
 bullet_image = pygame.transform.scale(bullet_image, (BULLET_SIZE, BULLET_SIZE))
-#敵人子彈
+# 敵人子彈
 bullet2_image = pygame.image.load("bullet2.png")
 bullet2_image = pygame.transform.scale(bullet2_image, (BULLET_SIZE, BULLET_SIZE))
+
 
 # 發射子彈（朝滑鼠游標方向）
 def shoot_enemy_bullet(enemy_rect):
     bullet_rect = pygame.Rect(enemy_rect.centerx - 5, enemy_rect.bottom, 10, 20)
-    bullet = {'rect': bullet_rect, 'type': 'enemy2'}  # Enemy bullet type is 'enemy2'
+    bullet = {'rect': bullet_rect, 'type': 'enemy2'}  # 敵人子彈類型為 'enemy2'
     bullets.append(bullet)
-
 
 def shoot_bullet():
     global last_shoot_time
-    
-    if invincible:  # Prevent shooting if the player is invincible
-        return
-
-    current_time = pygame.time.get_ticks()  # Get current time
-    if current_time - last_shoot_time >= SHOOT_DELAY:  # Check shooting interval (0.4 seconds)
-        mouse_x, mouse_y = pygame.mouse.get_pos()  # Get mouse position
-        dx = mouse_x - (player_x + PLAYER_SIZE // 2)  # Calculate relative position to player
+    current_time = pygame.time.get_ticks()  # 取得當前時間
+    if current_time - last_shoot_time >= SHOOT_DELAY:  # 檢查射擊間隔（0.4秒）
+        mouse_x, mouse_y = pygame.mouse.get_pos()  # 取得滑鼠位置
+        dx = mouse_x - (player_x + PLAYER_SIZE // 2)  # 計算相對於玩家的位置
         dy = mouse_y - (player_y + PLAYER_SIZE // 2)
-        distance = math.sqrt(dx ** 2 + dy ** 2)  # Calculate distance
-        dx /= distance  # Normalize direction vector
+        distance = math.sqrt(dx ** 2 + dy ** 2)  # 計算距離
+        dx /= distance  # 正規化方向向量
         dy /= distance
 
-        # Create player's bullet (bullet1)
+        # 創建玩家的子彈（bullet1）
         bullet = {
             'rect': pygame.Rect(player_x + PLAYER_SIZE // 2 - BULLET_SIZE // 2,
                                 player_y + PLAYER_SIZE // 2 - BULLET_SIZE // 2, BULLET_SIZE, BULLET_SIZE),
-            'dx': dx,  # Direction of the bullet
-            'dy': dy   # Direction of the bullet
+            'dx': dx,  # 子彈的方向
+            'dy': dy   # 子彈的方向
         }
-        bullets.append(bullet)  # Add the bullet to the list
+        bullets.append(bullet)  # 將子彈加入子彈列表
         shoot_sound.play()
-        last_shoot_time = current_time  # Update last shoot time
-
+        last_shoot_time = current_time  # 更新上次射擊時間
 
 
 # 子彈移動
-# Bullet movement function
 def move_bullets():
     global bullets
     for bullet in bullets[:]:
-        if bullet.get('type') == 'enemy2':  # Check if it's an enemy2 bullet
-            speed_multiplier = 0.7  # Slower speed for enemy2 bullets
+        if bullet.get('type') == 'enemy2':  # 檢查是否是敵人子彈（enemy2）
+            speed_multiplier = 0.7  # 敵人子彈的速度較慢
         else:
-            speed_multiplier = 1  # Normal speed for player bullets
+            speed_multiplier = 1  # 玩家子彈的正常速度
 
-        # Move the bullet based on its direction
+        # 根據子彈的方向移動
         bullet['rect'].x += bullet['dx'] * 10 * speed_multiplier
         bullet['rect'].y += bullet['dy'] * 10 * speed_multiplier
 
-        # Remove bullets that are off-screen
+        # 移除已經超出螢幕的子彈
         if bullet in bullets and (
             bullet['rect'].x < 0 or 
             bullet['rect'].x > SCREEN_WIDTH or 
             bullet['rect'].y < 0 or 
-            bullet['rect'].y > SCREEN_HEIGHT
-        ):
+            bullet['rect'].y > SCREEN_HEIGHT):
             bullets.remove(bullet)
-
-
 
 # 設定敵人參數
 class Enemy:
     def __init__(self, x, y, image, is_shooter=False):
         self.rect = pygame.Rect(x, y, ENEMY_SIZE, ENEMY_SIZE)
         self.image = image
-        self.is_shooter = is_shooter  # Whether the enemy is a shooter
-        self.last_shoot_time = 0  # Last shooting time
+        self.is_shooter = is_shooter  # 敵人是否為射手
+        self.last_shoot_time = 0  # 上次射擊時間
 
     def shoot(self):
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_shoot_time >= SHOOT_DELAY * 3.5:  # Shooting interval
+        if current_time - self.last_shoot_time >= SHOOT_DELAY * 3.5:  # 射擊間隔
             dx = player_rect.centerx - self.rect.centerx
             dy = player_rect.centery - self.rect.centery
             distance = math.sqrt(dx ** 2 + dy ** 2)
@@ -195,12 +183,13 @@ class Enemy:
                 'rect': pygame.Rect(self.rect.centerx - BULLET_SIZE // 2,
                                     self.rect.centery - BULLET_SIZE // 2,
                                     BULLET_SIZE, BULLET_SIZE),
-                'dx': dx * 0.5,  # Reduced speed for enemy bullet
+                'dx': dx * 0.5,  # 敵人子彈的速度較慢
                 'dy': dy * 0.5,
-                'type': 'enemy2'  # Marked as enemy2 bullet
+                'type': 'enemy2'  # 標註為敵人子彈
             }
             bullets.append(bullet)
-            self.last_shoot_time = current_time  # Update last shoot time
+            self.last_shoot_time = current_time  # 更新上次射擊時間
+
 
 
 
