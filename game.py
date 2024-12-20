@@ -294,6 +294,7 @@ def check_player_collisions():
         for enemy in enemies:
             if player_rect.colliderect(enemy.rect):  # 玩家與敵人碰撞
                 current_health -= 10
+                damage_sound.play()
                 invincible = True
                 invincible_time = pygame.time.get_ticks()  # 重置無敵時間
                 break  # 只扣一次血
