@@ -1,7 +1,7 @@
 # 113-1-計算機概論 Final presentation (2024/12/25, 12/27)
 
 ### **下載專區:**
-### **[下載最新版本](https://github.com/Lch950424/113-1--1.12/releases/tag/V1.13)**
+### **[下載最新版本](https://github.com/Lch950424/113-1--1.12/releases/tag/V1.14)**
 
 ### **安裝環境：**
 > 使用Visual Studio Code
